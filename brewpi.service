@@ -1,0 +1,11 @@
+[Unit]
+Description=BrewPi custom service
+After=multi-user.target
+
+[Service]
+Type=idle
+WorkingDirectory=/home/rob
+ExecStart=/usr/bin/startx /home/rob/bp_start.py
+
+[Install]
+WantedBy=multi-user.target

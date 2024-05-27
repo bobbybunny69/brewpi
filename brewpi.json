@@ -1,0 +1,120 @@
+[
+    21,
+    "Munich Helles sMasH",
+    "Rob",
+    "26/02/2023",
+    [
+        {
+            "Step": 1,
+            "Stage": "Mash",
+            "Name": "Start",
+            "Type": "mash",
+            "Time": 145,
+            "Value": -99
+        },
+        {
+            "Step": 2,
+            "Stage": "Mash",
+            "Name": "Strike Water",
+            "Type": "hlt",
+            "Time": 145,
+            "Value": 55
+        },
+        {
+            "Step": 3,
+            "Stage": "Mash",
+            "Name": "????",
+            "Type": "event",
+            "Time": 130,
+            "Value": -99
+        },
+        {
+            "Step": 4,
+            "Stage": "Mash",
+            "Name": "Protein Rest Low",
+            "Type": "mash",
+            "Time": 130,
+            "Value": 52
+        },
+        {
+            "Step": 5,
+            "Stage": "Mash",
+            "Name": "Beta Amalayse",
+            "Type": "mash",
+            "Time": 100,
+            "Value": 63
+        },
+        {
+            "Step": 6,
+            "Stage": "Mash",
+            "Name": "Beta Amalayse",
+            "Type": "mash",
+            "Time": 90,
+            "Value": 63
+        },
+        {
+            "Step": 7,
+            "Stage": "Mash",
+            "Name": "Alpha Amalayse",
+            "Type": "mash",
+            "Time": 60,
+            "Value": 72
+        },
+        {
+            "Step": 8,
+            "Stage": "Mash",
+            "Name": "Alpha Amalayse",
+            "Type": "mash",
+            "Time": 50,
+            "Value": 72
+        },
+        {
+            "Step": 9,
+            "Stage": "Mash",
+            "Name": "Mashout",
+            "Type": "mash",
+            "Time": 20,
+            "Value": 78
+        },
+        {
+            "Step": 10,
+            "Stage": "Mash",
+            "Name": "Mashout",
+            "Type": "mash",
+            "Time": 10,
+            "Value": 78
+        },
+        {
+            "Step": 11,
+            "Stage": "Mash",
+            "Name": "Sparge",
+            "Type": "mash",
+            "Time": 0,
+            "Value": -99
+        },
+        {
+            "Step": 12,
+            "Stage": "Mash",
+            "Name": "Sparge",
+            "Type": "hlt",
+            "Time": 0,
+            "Value": 76
+        },
+        {
+            "Step": 13,
+            "Stage": "Mash",
+            "Name": "Sparge",
+            "Type": "mash",
+            "Time": 0,
+            "Value": 74
+        },
+        {
+            "Step": 14,
+            "Stage": "Mash",
+            "Name": "All off",
+            "Type": "off",
+            "Time": 0,
+            "Value": -99
+        }
+    ]
+]

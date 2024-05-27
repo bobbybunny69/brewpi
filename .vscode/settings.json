@@ -1,0 +1,11 @@
+{
+    "sync-rsync.remote": "rob@brewpi.speckly:/home/rob/",
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.typeCheckingMode": "off",
+    "sync-rsync.local": "/home/rob/git/brewpi/",
+    "sync-rsync.exclude": [
+        ".git",
+        ".vscode",
+        "ver"
+    ]
+}
