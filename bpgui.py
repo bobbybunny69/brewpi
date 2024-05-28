@@ -107,6 +107,17 @@ class GUI(tk.Tk):
                     self.relay_text_vals[i].set('*ON*')
                 else:
                     self.relay_text_vals[i].set('....')
+            logging.debug("Relays (P1, P2, Rims, HLT): %s",relays_log_str)
+
+            # Update the Pump button colors according to state 
+            if(self.bp.get_pump_state(1)==1):
+                self.button_p1.config(bg='blue', activebackground='blue')
+            else:
+                self.button_p1.config(bg='white', activebackground='white')
+            if(self.bp.get_pump_state(2)==1):
+                self.button_p2.config(bg='blue', activebackground='blue')
+            else:
+                self.button_p2.config(bg='white', activebackground='white')
 
             #  Update the logfile and MQTT sensor every COUNT iterations
             count+=1
@@ -236,7 +247,6 @@ class GUI(tk.Tk):
         else:
             self.bp.set_pump_state(1, 0)
             self.button_p1.config(bg='white', activebackground='white')
-
         time.sleep(0.2)   #  Pause to show button hit then update with actual state
         if self.bp.get_pump_state(1) == 1:
             self.button_p1.config(bg='blue', activebackground='blue')
@@ -244,6 +254,7 @@ class GUI(tk.Tk):
         else:
             self.button_p1.config(bg='white', activebackground='white')
             self.relay_text_vals[1].set('....')
+        self.bpmqttc.publish_switch_state('pump1')   
            
     def PUMP2button(self):
         logging.debug("PUMP2 Button pressed - State %d", self.bp.get_pump_state(2))
@@ -253,7 +264,6 @@ class GUI(tk.Tk):
         else:
             self.bp.set_pump_state(2, 0)
             self.button_p2.config(bg='white', activebackground='white')
-
         time.sleep(0.2)   #  Pause to show button hit then update with actual state
         if self.bp.get_pump_state(2) == 1:
             self.button_p2.config(bg='blue', activebackground='blue')
@@ -261,6 +271,7 @@ class GUI(tk.Tk):
         else:
             self.button_p2.config(bg='white', activebackground='white')
             self.relay_text_vals[2].set('....')
+        self.bpmqttc.publish_switch_state('pump2')   
 
     def HEAT1button(self):
         logging.debug("HEAT1 Button pressed - State %d", self.bp.get_RIMS_state())

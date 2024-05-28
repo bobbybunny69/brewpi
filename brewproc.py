@@ -126,7 +126,7 @@ class Proc:
             self.set_RIMS_state(0)  
 
     def HLT_heat_ctrl(self):
-        if(self.controllers[1].get('allow_heat')==OFF):
+        if(self.controllers[1].get('allow_heat')=='off'):
             logging.debug("HLT heat control called with heat off shutting off heat")
             self.set_HLT_state(0)
             return()
@@ -193,9 +193,9 @@ class Proc:
 
     def get_controller_state(self, name):
         if(name=="Mash"):
-            heat_state = OFF if self.get_RIMS_state()==0 else ON
+            heat_state = 'off' if self.get_RIMS_state()==0 else 'on'
         elif(name=="HLT"):
-            heat_state = OFF if self.get_HLT_state()==0 else ON
+            heat_state = 'off' if self.get_HLT_state()==0 else 'on'
         else:
             logging.debug("Bad controller name use in get_controller_state: ",name)
             return()

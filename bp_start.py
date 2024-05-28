@@ -6,6 +6,8 @@ Initial Brew Pi start function - little in it
   v6:  Use Asyncio for non-blocking reading of sensors to make UI more repsonsive
   v7:  Use MQTT sensors to get temperature data in to home assistant
   v8:  Update to use better MQTT used in brew-pico
+  ToDo: Get Pumps and heaters working properly with the new MQTT approach
+  Don't forget to publish the status to HA immediately
 """
 import brewfather as bf
 import bpgui

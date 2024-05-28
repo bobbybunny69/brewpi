@@ -69,24 +69,24 @@ class bp2mqtt(object):
             self.publish_controller_status("HLT")
         elif (tpc_str == climate_topic+"/Mash/set/mode"):
             logging.debug("Setting Mash mode: %s", data_str)
-            self.bproc.set_controller_state("Mash", data_str.decode("utf-8"))
+            self.bproc.set_controller_state("Mash", data_str)
             self.bproc.RIMS_heat_ctrl()
             self.publish_controller_status("Mash")
         elif (tpc_str == climate_topic+"/HLT/set/mode"):
-            logging.debug("Setting HLT mode: %", data_str)
-            self.bproc.set_controller_state("HLT", data_str.decode("utf-8"))
+            logging.debug("Setting HLT mode: %s", data_str)
+            self.bproc.set_controller_state("HLT", data_str)
             self.bproc.HLT_heat_ctrl()
             self.publish_controller_status("HLT")
         elif (tpc_str == switch_topic+"/pump1/set"):
             logging.debug("Setting pump1 state: %s", data_str)
-            if(data_str==b'ON'):
+            if(data_str=='ON'):
                 self.bproc.set_pump_state(1,1)   # Turn pump 1 on
             else:
                 self.bproc.set_pump_state(1,0)   # Turn pump 1 off
             self.publish_switch_state("pump1")
         elif (tpc_str == switch_topic+"/pump2/set"):
-            logging.debug("Setting pump1 state: %s", data_str)
-            if(data_str==b'ON'):
+            logging.debug("Setting pump2 state: %s", data_str)
+            if(data_str=='ON'):
                 self.bproc.set_pump_state(2,1)   # Turn pump 2 on
             else:
                 self.bproc.set_pump_state(2,0)   # Turn pump 2 off
@@ -131,7 +131,6 @@ class bp2mqtt(object):
         payload = { "temperature": "{:.1f}".format(temperature) }
         logging.debug(json.dumps(payload))
         self.client.publish(base_topic+"/state", bytes(json.dumps(payload), 'utf-8'))
-        self.client.publish(self.availability_topic, 'online')
 
     def create_controller(self, name):
         sensor_name = self.device_name + " " + name + " Controller"
@@ -163,9 +162,7 @@ class bp2mqtt(object):
     def publish_controller_status(self, name):
         unique_id = self.client_id+"_"+name+"_controller"
         base_topic = "homeassistant/climate/" + self.client_id + "/" + name 
-
-        payload = self.bproc.get_controller_state(name)
-        
+        payload = self.bproc.get_controller_state(name)     
         logging.debug("Publishing state = %s", payload)  
         self.client.publish(base_topic+"/state", bytes(json.dumps(payload), 'utf-8'))
         self.client.publish(self.availability_topic, 'online')
@@ -192,7 +189,7 @@ class bp2mqtt(object):
         base_topic = "homeassistant/switch/" + self.client_id + "/" + name 
         if(name=='pump1'):
             onoff_state = 'OFF' if self.bproc.get_pump_state(1)==0 else 'ON'
-        elif(name=="pump2"):
+        elif(name=='pump2'):
             onoff_state = 'OFF' if self.bproc.get_pump_state(2)==0 else 'ON'
         else:
             logging.debug("Bad pump name use in set_switch_state: %s",name)
