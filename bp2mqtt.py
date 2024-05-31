@@ -72,11 +72,13 @@ class bp2mqtt(object):
             self.bproc.set_controller_state("Mash", data_str)
             self.bproc.RIMS_heat_ctrl()
             self.publish_controller_status("Mash")
+            self.publish_controller_status("HLT")
         elif (tpc_str == climate_topic+"/HLT/set/mode"):
             logging.debug("Setting HLT mode: %s", data_str)
             self.bproc.set_controller_state("HLT", data_str)
             self.bproc.HLT_heat_ctrl()
             self.publish_controller_status("HLT")
+            self.publish_controller_status("Mash")
         elif (tpc_str == switch_topic+"/pump1/set"):
             logging.debug("Setting pump1 state: %s", data_str)
             if(data_str=='ON'):

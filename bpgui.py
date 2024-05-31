@@ -119,6 +119,16 @@ class GUI(tk.Tk):
             else:
                 self.button_p2.config(bg='white', activebackground='white')
 
+            # Update the Heater button colors according to Allow Heat state
+            if(self.bp.controllers[0].get('allow_heat')=='heat'):
+                self.button_h1.config(bg='red', activebackground='red')
+            else:
+                self.button_h1.config(bg='white', activebackground='white')
+            if(self.bp.controllers[1].get('allow_heat')=='heat'):
+                self.button_h2.config(bg='red', activebackground='red')
+            else:
+                self.button_h2.config(bg='white', activebackground='white')
+
             #  Update the logfile and MQTT sensor every COUNT iterations
             count+=1
             if(count>COUNT):
@@ -274,28 +284,16 @@ class GUI(tk.Tk):
         self.bpmqttc.publish_switch_state('pump2')   
 
     def HEAT1button(self):
-        logging.debug("HEAT1 Button pressed - State %d", self.bp.get_RIMS_state())
-        if(self.mash_ctrl== False):
-            self.mash_ctrl = True
-            self.bp.set_mash_target(self.gui_mash_target)
-            self.button_h1.config(bg='red', activebackground='red')
-        else:
-            self.mash_ctrl = False
-            self.bp.set_mash_target(OFF)
-            self.bp.set_RIMS_state(0)
-            self.button_h1.config(bg='white', activebackground='white')
+        logging.debug("HEAT1 Button pressed - State %s", self.bp.controllers[0].get('allow_heat'))
+        self.bp.toggle_controller_state('Mash')
+        self.bp.RIMS_heat_ctrl()
+        self.bpmqttc.publish_controller_status('Mash')
 
     def HEAT2button(self):
-        logging.debug("HEAT2 Button pressed - State %d", self.bp.get_HLT_state())
-        if(self.hlt_ctrl == False):
-            self.hlt_ctrl = True
-            self.bp.set_hlt_target(self.gui_hlt_target)
-            self.button_h2.config(bg='red', activebackground='red')
-        else:
-            self.hlt_ctrl = False
-            self.bp.set_hlt_target(OFF)
-            self.bp.set_HLT_state(0)
-            self.button_h2.config(bg='white', activebackground='white')
+        logging.debug("HEAT2 Button pressed - State %s", self.bp.controllers[1].get('allow_heat'))
+        self.bp.toggle_controller_state('HLT')
+        self.bp.HLT_heat_ctrl()
+        self.bpmqttc.publish_controller_status('HLT')
 
     def rims_up_button(self):
         logging.debug("RIMS up Button pressed")

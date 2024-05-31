@@ -104,7 +104,7 @@ class Proc:
 
     # These rely on the sensors being updated using update_sensors() as uses stored values
     def RIMS_heat_ctrl(self):
-        if(self.controllers[0].get('allow_heat')==OFF):
+        if(self.controllers[0].get('allow_heat')=='off'):
             logging.debug("RIMS heat control called with heat off shutting off heat")
             self.set_RIMS_state(0)
             return()
@@ -193,9 +193,9 @@ class Proc:
 
     def get_controller_state(self, name):
         if(name=="Mash"):
-            heat_state = 'off' if self.get_RIMS_state()==0 else 'on'
+            heat_state = 'off' if self.get_RIMS_state()==0 else 'heat'
         elif(name=="HLT"):
-            heat_state = 'off' if self.get_HLT_state()==0 else 'on'
+            heat_state = 'off' if self.get_HLT_state()==0 else 'heat'
         else:
             logging.debug("Bad controller name use in get_controller_state: ",name)
             return()
@@ -215,19 +215,19 @@ class Proc:
                 logging.debug("Changing controller %s state: %s", name, state)
                 c.update({'allow_heat':state})
                 return()
-        logging.debug("Bad controller name use in set_controller_state: %s",name)
+        logging.debug("Bad controller name used set_controller_state: %s",name)
 
     def toggle_controller_state(self, name):   #  Set whether to allow heating
         for c in self.controllers:
             if(c.get('name')==name):
-                if(c.get('allow_heat')==OFF):
-                    state = ON
+                if(c.get('allow_heat')=='off'):
+                    state = 'heat'
                 else:
-                    state = OFF
+                    state = 'off'
                 logging.debug("Changing controller %s state: %s", name, state)
                 c.update({'allow_heat':state})
                 return()
-        logging.debug("Bad controller name use in set_controller_state: %s",name)
+        logging.debug("Bad controller name used toggle_controller_state: %s",name)
 
 
     def clean_up(self):

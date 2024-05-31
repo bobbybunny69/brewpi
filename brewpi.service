@@ -5,6 +5,7 @@ After=multi-user.target
 [Service]
 Type=idle
 WorkingDirectory=/home/rob
+User=rob
 ExecStart=/usr/bin/startx /home/rob/bp_start.py
 
 [Install]
