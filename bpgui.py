@@ -46,7 +46,7 @@ class GUI(tk.Tk):
         self.ipaddress = ipaddr
         self.ssid = ssid
 
-        self.f = open(log_file, "w")
+        self.f = open(log_file, "a")
         self.mash_ctrl = False
         self.hlt_ctrl = False
         self.step = 0
