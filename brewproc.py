@@ -33,33 +33,24 @@ class Proc:
         self.pump_chans = [5,6]
         self.RIMS_heater_chan = 13
         self.HLT_heater_chan = 19
-        self.sensors = [{'name':'Mash', 'id':'3c01b5566b49', 'temp':NULL_TEMP },
-              {'name':'HLT', 'id':'3c01d0757277', 'temp':NULL_TEMP },
-              {'name':'Boil', 'id':'3c01e076e9d7', 'temp':NULL_TEMP },
-              {'name':'RIMS', 'id':'3c01e076c825', 'temp':NULL_TEMP }]
+        self.sensors = [{'name':'Mash', 'id':'3c01b5566b49', 'temp':None },
+                        {'name':'HLT',  'id':'3c01d0757277', 'temp':None },
+                        {'name':'Boil', 'id':'3c01e076e9d7', 'temp':None },
+                        {'name':'RIMS', 'id':'3c01e076c825', 'temp':None }]
         self.controllers = [{'name':'Mash', 'allow_heat':'off', 'target_temp':OFF_TEMP },
                         {'name':'HLT', 'allow_heat':'off', 'target_temp':OFF_TEMP }]         
         self.rims_pump = rims_pump    # Note: 1 or 2
 
-    def update_sensors(self):
-        for s in self.sensors:
-            try:
-                sensor = W1ThermSensor(sensor_type=Sensor.DS18B20, sensor_id=s.get('id'))
-                s.update({'temp': sensor.get_temperature()})
-            except W1ThermSensorError as e:
-                logging.error("%s", e)    #  use sys.stderr.write
-                s.update({'temp': NULL_TEMP })
-                continue
-
-    async def async_update_sensors(self):
+    async def async_read_sensors(self):
         for s in self.sensors:
             try:
                 sensor = AsyncW1ThermSensor(sensor_type=Sensor.DS18B20, sensor_id=s.get('id'))
+                logging.debug("Kick-off sensor read: %s", s.get('name'))
                 temperature = await sensor.get_temperature()
                 s.update({'temp': temperature})
             except W1ThermSensorError as e:
-                logging.error("%s", e)    #  use sys.stderr.write
-                s.update({'temp': NULL_TEMP })
+                logging.warning("%s", e)    #  use sys.stderr.write
+                s.update({'temp': None })
                 continue
 
     def get_sensor_val(self, name):
@@ -67,9 +58,6 @@ class Proc:
             if(s.get('name')==name):
                 return s.get('temp')
         logging.warning("Bad sensor name: ", name)
-    """def get_sensor_val(self, num):
-        s=self.sensors[num-1]
-        return s.get('temp')"""
 
     def get_sensor_name(self, num):
         s=self.sensors[num]
@@ -234,8 +222,7 @@ class Proc:
         GPIO.output(self.relay_chans, 0)
         GPIO.cleanup(self.relay_chans)
     def __del__(self):
-        logging.info("Brew Proc __del__ called, cleaning up")
+        logging.info("Brew Proc __del__ called:  Shutting off all GPIO")
         self.clean_up()
-
 
 

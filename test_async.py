@@ -1,49 +1,33 @@
-#!/usr/bin/python3.9
-
+#!/usr/bin/python
 """
 Test async sensor access and play around with it
 """
-import tkinter as tk
-from tkinter import ttk
+import time
+import logging
+from w1thermsensor import AsyncW1ThermSensor, Sensor, W1ThermSensorError
 import asyncio
+import brewproc
 
-class App:
-    async def exec(self):
-        self.window = Window(asyncio.get_event_loop())
-        await self.window.show();
+loglevel = 'DEBUG'
+numeric_level = getattr(logging, loglevel.upper(), None)
+if not isinstance(numeric_level, int):
+    raise ValueError('Invalid log level: %s' % loglevel)
+logging.basicConfig(format='%(asctime)s %(message)s', level=numeric_level)
+                         
+async def update():
+    sensors = ["Mash", "HLT", "Boil", "RIMS"]
+    bp = brewproc.Proc(1)
 
+    tic = time.perf_counter()
+    task = None
+    i = 0
+    while i<10:
+        await bp.async_read_sensor(sensors[0])
+        toc = time.perf_counter()
+        logging.info(task)
+        logging.info(f"Time taken: {toc - tic:0.4f} seconds")
+        logging.info(bp.sensors)
+        await asyncio.sleep(0.5)
+        i+=1
 
-class Window(tk.Tk):
-    def __init__(self, loop):
-        self.loop = loop
-        self.root = tk.Tk()
-        self.animation = "░▒▒▒▒▒"
-        self.label = tk.Label(text="")
-        self.label.grid(row=0, columnspan=2, padx=(8, 8), pady=(16, 0))
-        self.progressbar = ttk.Progressbar(length=280)
-        self.progressbar.grid(row=1, columnspan=2, padx=(8, 8), pady=(16, 0))
-        button_block = tk.Button(text="Calculate Sync", width=10, command=self.calculate_sync)
-        button_block.grid(row=2, column=0, sticky=tk.W, padx=8, pady=8)
-        button_non_block = tk.Button(text="Calculate Async", width=10, command=lambda: self.loop.create_task(self.calculate_async()))
-        button_non_block.grid(row=2, column=1, sticky=tk.W, padx=8, pady=8)
-
-    async def show(self):
-        while True:
-            self.label["text"] = self.animation
-            self.animation = self.animation[1:] + self.animation[0]
-            self.root.update()
-            await asyncio.sleep(.1)
-
-    def calculate_sync(self):
-        max = 3000000
-        for i in range(1, max):
-            self.progressbar["value"] = i / max * 100
-
-    async def calculate_async(self):
-        max = 3000000
-        for i in range(1, max):
-            self.progressbar["value"] = i / max * 100
-            if i % 1000 == 0:
-                await asyncio.sleep(0)
-
-asyncio.run(App().exec())
+asyncio.run(update())
