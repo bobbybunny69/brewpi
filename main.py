@@ -45,13 +45,24 @@ switches = [{'name':'Pump-1', 'on_mode':'On', 'disabled':False },
 bproc = brewproc.Proc(RIMS_PUMP)
 bp_mqttc=None
 
-bpg = bpgui.BPGui()
+bpg = bpgui.BPGui(800, 480)
 bpg.create_home_scrn()
+
+def control_logic():
+    if bproc.get_pump_state(RIMS_PUMP)==True:
+        bpg.rims_switch.disabled = False
+    else:
+        bpg.rims_switch.disabled = True
+    if bproc.controllers[0].get('allow_heat')=='off':
+        bpg.p1_switch.disabled = False
+    else:
+        bpg.p1_switch.disabled = True
 
 async def game_loop():
     running = True
     while running:
         running = bpg.event_handeller(bproc)
+        control_logic()
         bproc.RIMS_heat_ctrl()
         bproc.HLT_heat_ctrl()
         await bpg.update_scrn(bproc)

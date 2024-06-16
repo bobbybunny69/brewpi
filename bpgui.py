@@ -9,16 +9,17 @@ THEME_COLOR1 = 'dodgerblue4'
 THEME_COLOR2 = 'white'
 THEME_COLOR3 = 'yellow'
 PRESSED_COLOR = 'blue'
-DISABLED = (128,128,128)
-screen_x = 800
-screen_y = 480
+DISABLED_COLOR ='darkslategray4'
+OFF_COLOR = 'darkslategray4'
 
 class BPGui():
-    def __init__(self):
+    def __init__(self, screen_x, screen_y):
         self.count = None
         self.sensor_task = None
         self.mash_delta = 0
         self.hlt_delta = 0
+        self.screen_x = screen_x
+        self.screen_y = screen_y
         self.screen = pygame.display.set_mode((screen_x, screen_y))
         pygame.mouse.set_visible(False)    # Hide cursor here
         self.screen.fill('black')
@@ -35,12 +36,12 @@ class BPGui():
         self.hlt_dn_button = Button(732, 102, 64, 'assets/arrow-down.png')
         self.mash_panel = Panel(120, 0, 250, 'Mash Tun')
         self.hlt_panel = Panel(470, 0, 250, 'Hot Liquor Tank')
-        self.rims_reading = Reading(120, 180, 320, 'RIMS Tube')
-        self.boil_reading = Reading(470, 180, 320, 'Boil Kettle')
-        self.p1_switch= Switch(650, 224, 'On')
-        self.p2_switch= Switch(650, 288, 'On')
-        self.rims_switch= Switch(650, 352, 'Auto')
-        self.hlt_switch= Switch(650, 416, 'Auto')
+        self.rims_reading = Reading(120, 260, 320, 'RIMS Tube')
+        self.boil_reading = Reading(470, 260, 320, 'Boil Kettle')
+        self.p1_switch= Switch(600, 320, 'On')
+        self.p2_switch= Switch(600, 400, 'On')
+        self.rims_switch = Switch(140, 180, 'Auto', disabled=True)
+        self.hlt_switch = Switch(490, 180, 'Auto')
 
     async def update_scrn(self, bp: brewproc.Proc):
         # Read temp probes using a non-blocking task 
@@ -80,8 +81,8 @@ class BPGui():
                 self.mash_delta = self.hlt_delta = 0
                 self.count = None
             elif event.type == pygame.FINGERDOWN: 
-                finger_x = int (event.x * screen_x + 0.5)
-                finger_y = int (event.y * screen_y + 0.5)
+                finger_x = int (event.x * self.screen_x + 0.5)
+                finger_y = int (event.y * self.screen_y + 0.5)
                 logging.debug("Finger touched the screen at ({},{})".format(finger_x, finger_y)) 
                 self.count = 1
                 if self.home_button.is_pressed(finger_x, finger_y):
@@ -102,8 +103,14 @@ class BPGui():
                 elif self.hlt_dn_button.is_pressed(finger_x, finger_y):
                     bp.set_hlt_target(bp.hlt_target-1)
                     self.hlt_delta = -1
+                elif self.rims_switch.is_pressed(finger_x, finger_y):
+                    bp.toggle_controller_state('Mash')
+                elif self.hlt_switch.is_pressed(finger_x, finger_y):
+                    bp.toggle_controller_state('HLT')
                 elif self.p1_switch.is_pressed(finger_x, finger_y):
                     bp.set_pump_state(1, self.p1_switch.state)
+                elif self.p2_switch.is_pressed(finger_x, finger_y):
+                    bp.set_pump_state(2, self.p2_switch.state)
         if(self.count != None):
                 self.count += 1
                 if(self.count>4):
@@ -133,44 +140,44 @@ class Button(BPGui):
             return False
 
 class Switch(BPGui):
-    def __init__(self, x, y, text_on='On'):
+    def __init__(self, x, y, text_on='On', disabled = False):
         self.x = x
         self.y = y
+        self.text_on = text_on
+        self.disabled = disabled
         self.state = False
-        self.size = 64
-        self.text = 'Off'
-        self.disabled = False
-        self.icon_on = 'assets/toggle-switch-on.png'
-        self.icon_off = 'assets/toggle-switch-off.png'
-        self.img = pygame.image.load(self.icon_off).convert_alpha()
+        self.width = 96
+        self.bg_color = THEME_COLOR1
+        self.sml_font = pygame.font.Font('assets/SQR721B.TTF', 32)     # Square721 BT, Bold
+        self.button_rect = pygame.Rect(self.x+4, self.y+4, self.width-8, 56)
     def draw(self, screen: pygame.Surface) :
-        pygame.draw.rect(screen, 'black', (self.x, self.y, self.size, self.size))  # clear
-        if self.disabled:
-            pygame.PixelArray(self.img).replace((255,255,255), DISABLED)
-        else:
-            pygame.PixelArray(self.img).replace(DISABLED, (255,255,255))
-        screen.blit(self.img,(self.x, self.y))
+        pygame.draw.rect(screen, self.bg_color, self.button_rect, border_radius=8)
+        text = self.text_on if self.state else 'Off'
+        text_color = DISABLED_COLOR if self.disabled else THEME_COLOR2
+        screen_text = self.sml_font.render(text, True, text_color) 
+        text_rect = screen_text.get_rect(center = self.button_rect.center)
+        screen.blit(screen_text, text_rect)
     def is_pressed(self, x, y):
         if self.disabled:
             return False
-        if self.x < x < (self.x+self.size) and self.y < y < (self.y+self.size):
+        if self.x < x < (self.x+self.width) and self.y < y < (self.y+64):
             if self.state == False:
-                self.img = pygame.image.load(self.icon_on).convert_alpha()
+                self.bg_color = PRESSED_COLOR
                 self.state = True
                 return True
             else:
-                self.img = pygame.image.load(self.icon_off).convert_alpha()
+                self.bg_color = THEME_COLOR1
                 self.state = False
                 return True
 
 class Indicator(BPGui):
-    def __init__(self, x, y, icons):
+    def __init__(self, x, y, on_color, icons):
         self.x = x
         self.y = y
         self.on = False
+        self.on_color = on_color
         self.i = 0
         self.img = pygame.image.load(icons[self.i]).convert_alpha()
-        self.state = False
         self.size = self.img.get_rect().width
         self.icons = icons
     def draw(self, screen: pygame.Surface) :
@@ -178,10 +185,13 @@ class Indicator(BPGui):
             self.i += 1
             if self.i==len(self.icons):
                 self.i = 0
+            img_color = self.on_color
         else:
             self.i = 0
+            img_color = OFF_COLOR
         self.img = pygame.image.load(self.icons[self.i]).convert_alpha()
         screen.blit(self.img,(self.x, self.y))
+        logging.debug("State: {},  Index: {}, Img color: {}".format(self.on, self.i, img_color))
 
 class Panel(BPGui):
     def __init__(self, x, y, width, name):

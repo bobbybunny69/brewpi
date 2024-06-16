@@ -122,15 +122,15 @@ class Proc:
             #logging.debug("HLT heat control called with RIMS heat ON shutting off heat")
             self.set_HLT_state(0)
             return()
-        self.hlt_target = self.controllers[1].get('target_temp')    
+        hlt_target = self.controllers[1].get('target_temp')    
         #logging.debug("HLT heat control called with target %d",self.hlt_target)
  
         for s in self.sensors:
             if (s.get('name')=='HLT'):
                 HLT_temp = s.get('temp')
-        if(HLT_temp < (self.hlt_target-temp_delta) ):
+        if(HLT_temp < (hlt_target-temp_delta) ):
             self.set_HLT_state(ON)  # Turn on if < target temp-0.5 
-        elif(HLT_temp > (self.hlt_target+temp_delta)):
+        elif(HLT_temp > (hlt_target+temp_delta)):
             self.set_HLT_state(OFF)  # Turn off if < target temp+0.5
  
     """
