@@ -18,9 +18,6 @@ import asyncio
 MQTT_HOST = "spklns04.speckly"     # host of your MQTT Broker
 MQTT_PORT = 1883            # port of your MQTT Broker
 json_file = "brewpi.json"
-RIMS_pump = 1
-screen_x = 800
-screen_y = 480
 # ======== END USER INPUT ==========
 
 #loglevel = 'INFO'
@@ -35,15 +32,20 @@ if(logfile == None):
 else:
     logging.basicConfig(filename=logfile, filemode='w', format='%(asctime)s %(message)s', level=numeric_level)
 
-# Set-up the brewing process and define which input channel is the RIMS pump to protect heater
-sensors = ["Mash", "HLT", "Boil", "RIMS"]
-controllers = sensors[:2]
-pumps = ["pump1", "pump2"]
+# Define the elements globally
 RIMS_PUMP = 1
+sensors = ["Mash", "HLT", "Boil", "RIMS"]
+controllers = ["Mash", "HLT"]
+switches = [{'name':'Pump-1', 'on_mode':'On', 'disabled':False },
+            {'name':'Pump-2', 'on_mode':'On', 'disabled':False },
+            {'name':'RIMS',   'on_mode':'Auto', 'disabled':True },
+            {'name':'HLT',    'on_mode':'Auto', 'disabled':False }]
+
+# Set-up the brewing process and define which input channel is the RIMS pump to protect heater
 bproc = brewproc.Proc(RIMS_PUMP)
 bp_mqttc=None
 
-bpg = bpgui.BPGui(screen_x, screen_y)
+bpg = bpgui.BPGui()
 bpg.create_home_scrn()
 
 async def game_loop():

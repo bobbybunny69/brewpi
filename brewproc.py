@@ -64,7 +64,7 @@ class Proc:
         return s.get('name')
 
     def get_relay_state(self, num):
-        return GPIO.input(self.relay_chans[num-1])
+        return GPIO.input(self.relay_chans[num])
 
     def get_pump_state(self, num):
         return GPIO.input(self.pump_chans[num-1])
@@ -93,11 +93,11 @@ class Proc:
     # These rely on the sensors being updated using update_sensors() as uses stored values
     def RIMS_heat_ctrl(self):
         if(self.controllers[0].get('allow_heat')=='off'):
-            logging.debug("RIMS heat control called with heat off shutting off heat")
+            #logging.debug("RIMS heat control called with heat off shutting off heat")
             self.set_RIMS_state(0)
             return()
         mash_target = self.controllers[0].get('target_temp')
-        logging.debug("RIMS heat control called with Mash target %d",mash_target)
+        #logging.debug("RIMS heat control called with Mash target %d",mash_target)
         for s in self.sensors:
             if (s.get('name')=='RIMS'):
                 RIMS_temp = s.get('temp')
@@ -115,15 +115,15 @@ class Proc:
 
     def HLT_heat_ctrl(self):
         if(self.controllers[1].get('allow_heat')=='off'):
-            logging.debug("HLT heat control called with heat off shutting off heat")
+            #logging.debug("HLT heat control called with heat off shutting off heat")
             self.set_HLT_state(0)
             return()
         if(self.get_RIMS_state()==1):
-            logging.debug("HLT heat control called with RIMS heat ON shutting off heat")
+            #logging.debug("HLT heat control called with RIMS heat ON shutting off heat")
             self.set_HLT_state(0)
             return()
-        hlt_target = self.controllers[1].get('target_temp')    
-        logging.debug("HLT heat control called with target %d",hlt_target)
+        self.hlt_target = self.controllers[1].get('target_temp')    
+        #logging.debug("HLT heat control called with target %d",self.hlt_target)
  
         for s in self.sensors:
             if (s.get('name')=='HLT'):
@@ -131,10 +131,11 @@ class Proc:
         if(HLT_temp < (self.hlt_target-temp_delta) ):
             self.set_HLT_state(ON)  # Turn on if < target temp-0.5 
         elif(HLT_temp > (self.hlt_target+temp_delta)):
-            self.set_HLT_state(OFF)  # Turn off if < target temp+0.5 
-
+            self.set_HLT_state(OFF)  # Turn off if < target temp+0.5
+ 
     """
-    Gets passsed a step dict of {'Step':i, 'Stage':stage_name, 'Name':step_name, 'Type':step_type, 'Time':step_time , 'Value':step_value}      
+    Gets passsed a step dict of {'Step':i, 'Stage':stage_name, 'Name':step_name, 
+    'Type':step_type, 'Time':step_time , 'Value':step_value}      
     """
     def set_target_temps(self, step):
         logging.debug("set_target_temps called with step: %s" ,step)
@@ -156,6 +157,13 @@ class Proc:
 
     def set_hlt_target(self, target):
         self.controllers[1].update({'target_temp': target})
+
+    @property
+    def relay_chans_state(self) -> list:
+        relays = []
+        for chan in self.relay_chans:
+            relays.append(GPIO.input(chan))
+        return list(relays)
 
     @property
     def mash_target(self) -> int:
