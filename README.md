@@ -5,11 +5,11 @@ Spec:
 * Rpi board individually powered? 
 * 4 temp sensors and 4 mains outputs controlled by relays 
 *    Show on display 4 temps (or disconn/err) 
-*    Select which temp drives heating controller 
-*    Pumps manually switched on display 
-*    Heating override 
+*    Temperature controller for 2 heaters (RIMS and HLT) 
+*    Pumps manually switched on display
+*    Heating override to balnce power between heaters
 *    Logging of data 
 *    Exporting to Home Assistant 
-*    Control via Brewfather 
+*    Control via Brewfather (TODO)
 _
 
