@@ -1,5 +1,5 @@
 # BrewPi (experimental)
-This is my personal python code for a BrewPi home brewing controller.  It is based of pygame and uses MDI Icons, to create a graphical interface on a Raspberry Pi (I used a 3B+) and the standard 7" touch screen display (900x480).  
+This is my personal python code for a BrewPi home brewing controller.  It is based of pygame and uses MDI Icons, to create a graphical interface on a Raspberry Pi (I used a 3B+) and the standard 7" touch screen display (800x480).  
 
 Spec: 
 * Rpi board individually powered? 
