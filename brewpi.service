@@ -6,7 +6,7 @@ After=multi-user.target
 Type=idle
 WorkingDirectory=/home/rob
 User=rob
-ExecStart=/usr/bin/startx /home/rob/bp_start.py
+ExecStart=/usr/bin/startx /home/rob/main.py
 
 [Install]
 WantedBy=multi-user.target

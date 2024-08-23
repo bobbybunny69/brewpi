@@ -47,6 +47,7 @@ bp_mqttc=None
 
 bpg = bpgui.BPGui(800, 480)
 bpg.create_home_scrn()
+bpg.create_quit_scrn()
 
 def control_logic():
     if bproc.get_pump_state(RIMS_PUMP)==True:
@@ -61,10 +62,16 @@ def control_logic():
 async def game_loop():
     running = True
     while running:
-        running = bpg.event_handeller(bproc)
-        control_logic()
-        bproc.RIMS_heat_ctrl()
-        bproc.HLT_heat_ctrl()
+        if bpg.display_quit_screen:
+            running = bpg.quit_event_handeller(bproc)
+        else:
+            running = bpg.event_handeller(bproc)
+            control_logic()
+            
+        if bpg.display_quit_screen==False:
+            bproc.RIMS_heat_ctrl()
+            bproc.HLT_heat_ctrl()
+        
         await bpg.update_scrn(bproc)
 
 asyncio.run(game_loop())

@@ -20,6 +20,7 @@ class BPGui():
         self.hlt_delta = 0
         self.screen_x = screen_x
         self.screen_y = screen_y
+        self.display_quit_screen = False
         self.screen = pygame.display.set_mode((screen_x, screen_y))
         pygame.mouse.set_visible(False)    # Hide cursor here
         self.screen.fill('black')
@@ -47,6 +48,18 @@ class BPGui():
         self.hlt_switch = Switch(490, 180, 'Auto')
         self.hlt_ind = Indicator (590, 166, 'red', ['assets/fire-1.png', 'assets/fire-2.png'])
 
+    def create_quit_scrn(self):
+        x=180
+        y=320
+        w=320
+        h=144
+        self.quit_panel = QuitPanel(x, y, w, h, 'Quit...?')
+        btn_y = y+h-72
+        btn_x = x+8
+        self.back_button = Button(btn_x, btn_y, 64, 'assets/back.png')
+        btn_x = x+w-72
+        self.continue_button = Button(btn_x, btn_y, 64, 'assets/close.png')
+
     async def update_scrn(self, bp: brewproc.Proc):
         # Read temp probes using a non-blocking task 
         if(self.sensor_task == None):       #  Start read/update task if none defined
@@ -73,20 +86,30 @@ class BPGui():
         self.rims_ind.draw(self.screen, bp.get_RIMS_state())
         self.hlt_switch.draw(self.screen)
         self.hlt_ind.draw(self.screen, bp.get_HLT_state())
-        
+        if self.display_quit_screen:
+            self.update_quit_scrn(clear=False)
+        else:
+            self.update_quit_scrn(clear=True)
+
         pygame.display.update()
         await asyncio.sleep(0.210)
         self.clock.tick(0)
         logging.debug("Number ms between last 2 ticks: %d", self.clock.get_time())     
         logging.debug("RIMS Auto = {}, HLT Auto = {}, Relays = {}".format(bp.controllers[0].get('allow_heat'), bp.controllers[1].get('allow_heat'), bp.relay_chans_state))
         
+    def update_quit_scrn(self, clear=False):
+        if clear:
+            self.quit_panel.clear(self.screen)
+        else:
+            self.quit_panel.draw(self.screen)
+            self.continue_button.draw(self.screen)
+            self.back_button.draw(self.screen)
+
     def event_handeller(self, bp: brewproc.Proc):
         for event in pygame.event.get():
-            #print("event: ", event)
             if event.type == pygame.QUIT:
                 return False
             elif event.type == pygame.FINGERUP:
-                #print("finger lifted")
                 self.mash_delta = self.hlt_delta = 0
                 self.count = None
             elif event.type == pygame.FINGERDOWN: 
@@ -99,7 +122,8 @@ class BPGui():
                 elif self.settings_button.is_pressed(finger_x, finger_y):
                     settings_screen = True
                 elif self.quit_button.is_pressed(finger_x, finger_y):
-                    return False 
+                    self.display_quit_screen = True
+                    bp.kill_heat()
                 elif self.mash_up_button.is_pressed(finger_x, finger_y):
                     bp.set_mash_target(bp.mash_target+1)
                     self.mash_delta = 1
@@ -125,6 +149,25 @@ class BPGui():
                 if(self.count>4):
                     bp.set_mash_target(bp.mash_target + self.mash_delta)
                     bp.set_hlt_target(bp.hlt_target + self.hlt_delta)
+        return True
+
+    def quit_event_handeller(self, bp: brewproc.Proc):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
+            elif event.type == pygame.FINGERUP:
+                self.mash_delta = self.hlt_delta = 0
+                self.count = None
+            elif event.type == pygame.FINGERDOWN: 
+                finger_x = int (event.x * self.screen_x + 0.5)
+                finger_y = int (event.y * self.screen_y + 0.5)
+                logging.debug("Finger touched the screen at ({},{})".format(finger_x, finger_y)) 
+                if self.continue_button.is_pressed(finger_x, finger_y):
+                    return False 
+                elif self.back_button.is_pressed(finger_x, finger_y):
+                   self.display_quit_screen = False
+                elif self.quit_button.is_pressed(finger_x, finger_y):
+                   self.display_quit_screen = False
         return True
 
 class Button(BPGui):
@@ -253,3 +296,20 @@ class Reading(BPGui):
         reading_text_rect.top = self.y
         screen.blit(reading_text, reading_text_rect)
 
+class QuitPanel(BPGui):
+    def __init__(self, x, y, width, height, name):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.font = pygame.font.Font('assets/SQR721B.TTF', 48)     # Square721 BT, Bold
+        self.name_text = self.font.render(name, True, 'black')                 
+    def draw(self, screen: pygame.Surface):
+        pygame.draw.rect(screen, 'white', (self.x, self.y, self.width, self.height))  # clear panel
+        text_rect = self.name_text.get_rect()
+        text_rect.centerx = self.x+(self.width/2)
+        text_rect.y = self.y + 4
+        screen.blit(self.name_text, text_rect)
+    def clear(self, screen: pygame.Surface):
+        pygame.draw.rect(screen, 'black', (self.x, self.y, self.width, self.height))  # clear panel
+        

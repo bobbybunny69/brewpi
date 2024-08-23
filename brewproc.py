@@ -226,6 +226,9 @@ class Proc:
         logging.debug("Bad controller name used toggle_controller_state: %s",name)
 
 
+    def kill_heat(self):
+        GPIO.output(self.RIMS_heater_chan, 0)
+        GPIO.output(self.HLT_heater_chan, 0)
     def clean_up(self):
         GPIO.output(self.relay_chans, 0)
         GPIO.cleanup(self.relay_chans)
