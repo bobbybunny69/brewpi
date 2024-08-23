@@ -57,8 +57,10 @@ class BPGui():
         btn_y = y+h-72
         btn_x = x+8
         self.back_button = Button(btn_x, btn_y, 64, 'assets/back.png')
-        btn_x = x+w-72
+        btn_x = x+(w/2)-32
         self.continue_button = Button(btn_x, btn_y, 64, 'assets/close.png')
+        btn_x = x+w-72
+        self.off_button = Button(btn_x, btn_y, 64, 'assets/off.png')
 
     async def update_scrn(self, bp: brewproc.Proc):
         # Read temp probes using a non-blocking task 
@@ -104,6 +106,7 @@ class BPGui():
             self.quit_panel.draw(self.screen)
             self.continue_button.draw(self.screen)
             self.back_button.draw(self.screen)
+            self.off_button.draw(self.screen)
 
     def event_handeller(self, bp: brewproc.Proc):
         for event in pygame.event.get():
@@ -168,6 +171,8 @@ class BPGui():
                    self.display_quit_screen = False
                 elif self.quit_button.is_pressed(finger_x, finger_y):
                    self.display_quit_screen = False
+                elif self.off_button.is_pressed(finger_x, finger_y):
+                   return False
         return True
 
 class Button(BPGui):
