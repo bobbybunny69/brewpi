@@ -11,7 +11,7 @@ Initial Brew Pi start function - little in it
 from bp2mqtt import bp2mqtt
 import bpgui
 import brewproc
-import logging
+import logging, os
 import asyncio
 
 # ==== START USER INPUT ====
@@ -77,3 +77,6 @@ async def game_loop():
 asyncio.run(game_loop())
 
 logging.info("Exiting BREWPI task")
+if bpg.shutdown_flag:
+    logging.info("... and sgutting down")
+    os.system("sleep 2 && sudo shutdown -P now")

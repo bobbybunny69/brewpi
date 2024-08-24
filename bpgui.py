@@ -21,6 +21,7 @@ class BPGui():
         self.screen_x = screen_x
         self.screen_y = screen_y
         self.display_quit_screen = False
+        self.shutdown_flag = False
         self.screen = pygame.display.set_mode((screen_x, screen_y))
         pygame.mouse.set_visible(False)    # Hide cursor here
         self.screen.fill('black')
@@ -94,10 +95,10 @@ class BPGui():
             self.update_quit_scrn(clear=True)
 
         pygame.display.update()
-        await asyncio.sleep(0.210)
+        await asyncio.sleep(0.210)    # IMPORTANT - allows other tasks to run
         self.clock.tick(0)
         logging.debug("Number ms between last 2 ticks: %d", self.clock.get_time())     
-        logging.debug("RIMS Auto = {}, HLT Auto = {}, Relays = {}".format(bp.controllers[0].get('allow_heat'), bp.controllers[1].get('allow_heat'), bp.relay_chans_state))
+        logging.debug("RIMS= {}, HLT= {}, Relays= {}".format(bp.controllers[0].get('allow_heat'), bp.controllers[1].get('allow_heat'), bp.relay_chans_state))
         
     def update_quit_scrn(self, clear=False):
         if clear:
@@ -172,6 +173,7 @@ class BPGui():
                 elif self.quit_button.is_pressed(finger_x, finger_y):
                    self.display_quit_screen = False
                 elif self.off_button.is_pressed(finger_x, finger_y):
+                   self.shutdown_flag = True
                    return False
         return True
 
